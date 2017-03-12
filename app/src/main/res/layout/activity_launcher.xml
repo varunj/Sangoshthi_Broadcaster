@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/main_content"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:fitsSystemWindows="true" tools:context="io.github.varunj.sangoshthi_broadcaster.LauncherActivity">
+    android:fitsSystemWindows="true" tools:context="io.github.varunj.sangoshthi_broadcaster.ListSessionsActivity">
     <android.support.v4.view.ViewPager android:id="@+id/container"
         android:layout_width="match_parent" android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />

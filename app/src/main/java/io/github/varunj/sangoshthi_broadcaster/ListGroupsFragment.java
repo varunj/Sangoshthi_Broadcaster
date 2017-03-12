@@ -48,7 +48,7 @@ public class ListGroupsFragment extends Fragment {
         listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int arg2, long arg3) {
-                Intent i = new Intent(getActivity(), GroupVideo.class);
+                Intent i = new Intent(getActivity(), GroupVideoActivity.class);
                 String GroupName = ((TextView) view.findViewById(R.id.groupname)).getText().toString();
                 i.putExtra("groupName", GroupName);
                 startActivity(i);

@@ -13,7 +13,7 @@ import android.support.v7.app.AppCompatActivity;
  * Created by Varun on 04-03-2017.
  */
 
-public class LauncherActivity extends AppCompatActivity {
+public class ListSessionsActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;

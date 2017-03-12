@@ -54,7 +54,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Created by Varun on 04-03-2017.
  */
 
-public class GroupVideo extends AppCompatActivity {
+public class GroupVideoActivity extends AppCompatActivity {
     private String receiverGroupName , senderPhoneNum;
     private Message message1;
     Thread publishThread;
@@ -355,7 +355,7 @@ public class GroupVideo extends AppCompatActivity {
         DataSource dataSource = new DefaultUriDataSource(this, null, userAgent);
         ExtractorSampleSource sampleSource = new ExtractorSampleSource(
                 Uri.fromFile(
-                        new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), VIDEO_URI)
+                        new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "/Sangoshthi/" + VIDEO_URI)
                 ),
                 dataSource, allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
 
