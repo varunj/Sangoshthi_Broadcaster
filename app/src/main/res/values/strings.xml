@@ -6,4 +6,6 @@
 
     <string name="toast_wrong_name">Enter Name</string>
     <string name="toast_wrong_phoneNum">Enter Your 10 Digit Phone Number</string>
+
+    <string name="server_client_id">849083346543-3nh3ppr0b4tpgltfe2h1ita104jqk5sm.apps.googleusercontent.com/</string>
 </resources>

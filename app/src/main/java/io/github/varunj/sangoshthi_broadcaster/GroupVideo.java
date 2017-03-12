@@ -355,7 +355,7 @@ public class GroupVideo extends AppCompatActivity {
         DataSource dataSource = new DefaultUriDataSource(this, null, userAgent);
         ExtractorSampleSource sampleSource = new ExtractorSampleSource(
                 Uri.fromFile(
-                        new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) + VIDEO_URI)
+                        new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), VIDEO_URI)
                 ),
                 dataSource, allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
 

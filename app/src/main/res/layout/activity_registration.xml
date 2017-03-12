@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="16dip"
-    tools:context="io.github.varunj.sangoshthi_broadcaster.Register">
+    tools:context="io.github.varunj.sangoshthi_broadcaster.StarterActivity">
 
     <EditText
         android:layout_width="match_parent"
@@ -38,14 +38,13 @@
         android:layout_marginTop="30dp"
         android:hint="Enter PhoneNo" />
 
-    <Button
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="REGISTER"
-        android:id="@+id/submit"
+        android:text="Sign In"
         android:layout_marginTop="50dp"
         android:layout_below="@+id/phone"
-        android:layout_centerHorizontal="true"
-        android:onClick="setData" />
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>
