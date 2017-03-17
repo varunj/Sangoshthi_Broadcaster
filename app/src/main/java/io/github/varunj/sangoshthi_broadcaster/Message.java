@@ -1,5 +1,7 @@
 package io.github.varunj.sangoshthi_broadcaster;
 
+import org.json.JSONObject;
+
 /**
  * Created by Varun on 04-03-2017.
  */
@@ -7,6 +9,7 @@ package io.github.varunj.sangoshthi_broadcaster;
 public class Message implements java.io.Serializable {
     private String sender;
     private String message;
+    private JSONObject messageJSON;
     private String timestamp;
     private String receiver;
 
@@ -22,6 +25,13 @@ public class Message implements java.io.Serializable {
     }
     public String getMessage() {
         return message;
+    }
+
+    public void setMessageJSON(JSONObject message) {
+        this.messageJSON = message;
+    }
+    public JSONObject getMessageJSON() {
+        return messageJSON;
     }
 
     public void setTimestamp(String timestamp) {

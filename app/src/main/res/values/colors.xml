@@ -3,4 +3,9 @@
     <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#1976D2</color>
     <color name="colorAccent">#009688</color>
+
+    <color name="picker_add_photo">#ffffff</color>
+    <color name="picker_add_story">#ff99cc00</color>
+    <color name="picker_gallery">#ff33b5e5</color>
+    <color name="picker_participate">#ffff4444</color>
 </resources>

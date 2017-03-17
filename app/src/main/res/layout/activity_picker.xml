@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    tools:context="io.github.varunj.sangoshthi_broadcaster.PickerActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/picker_add_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/picker_add_photo"
+                android:layout_weight="1.0"
+                android:text="@string/picker_add_photo"
+                android:drawableTop="@drawable/picker_add_photo"
+                android:paddingLeft="@dimen/picker_left_icon_pad"/>
+            <Button
+                android:id="@+id/picker_add_video"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/picker_add_photo"
+                android:layout_weight="1.0"
+                android:text="@string/picker_add_video"
+                android:drawableTop="@drawable/picker_add_video"
+                android:paddingLeft="@dimen/picker_left_icon_pad"/>
+
+            </LinearLayout>
+
+        <Button
+            android:id="@+id/picker_add_story"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/picker_add_story"
+            android:layout_weight="1.0"
+            android:text="@string/picker_add_story"
+            android:drawableLeft="@drawable/picker_add_story"
+            android:paddingLeft="@dimen/picker_left_icon_pad"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/picker_gallery"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/picker_gallery"
+            android:layout_weight="1.0"
+            android:text="@string/picker_gallery"
+            android:drawableLeft="@drawable/picker_gallery"
+            android:paddingLeft="@dimen/picker_left_icon_pad"/>
+        <Button
+            android:id="@+id/picker_participate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/picker_participate"
+            android:layout_weight="1.0"
+            android:text="@string/picker_participate"
+            android:drawableLeft="@drawable/picker_participate"
+            android:paddingLeft="@dimen/picker_left_icon_pad"/>
+
+    </LinearLayout>
+</LinearLayout>

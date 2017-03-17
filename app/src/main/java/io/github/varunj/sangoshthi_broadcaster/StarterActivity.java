@@ -38,7 +38,7 @@ public class StarterActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if(prefs.getBoolean("isLoggedIn", false)) {
-            Intent intent = new Intent(this,ListSessionsActivity.class);
+            Intent intent = new Intent(this,PickerActivity.class);
             startActivity(intent);
             finish();
         }
@@ -94,7 +94,7 @@ public class StarterActivity extends AppCompatActivity implements
                     editor.putBoolean("isLoggedIn" , true);
                     editor.putString("googleEmail", acct.getEmail());
                     editor.commit();
-                    Intent intent = new Intent(this, ListSessionsActivity.class);
+                    Intent intent = new Intent(this, PickerActivity.class);
                     startActivity(intent);
                     finish();
                 }

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="16dip"
+    tools:context="io.github.varunj.sangoshthi_broadcaster.StarterActivity">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/newshow_heading"
+        android:id="@+id/newshow_heading"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/newshow_showname"
+        android:hint="@string/newshow_showname"
+        android:layout_marginTop="52dp"
+        android:layout_below="@+id/newshow_heading"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="@string/newshow_showtime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/newshow_showtime"
+        android:layout_below="@+id/newshow_showname"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="11dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="29dp" />
+
+    <Button
+        android:text="@string/newshow_showdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/newshow_showdate"
+        android:layout_alignBaseline="@+id/newshow_showtime"
+        android:layout_alignBottom="@+id/newshow_showtime"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="@string/newshow_showpath"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/newshow_showpath"
+        android:layout_alignBaseline="@+id/newshow_showdate"
+        android:layout_alignBottom="@+id/newshow_showdate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/newshow_showparticipants"
+        android:hint="@string/newshow_showparticipants"
+        android:layout_marginTop="29dp"
+        android:layout_below="@+id/newshow_showtime"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="@string/newshow_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="23dp"
+        android:id="@+id/newshow_ok"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+
+</RelativeLayout>

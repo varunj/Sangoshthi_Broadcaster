@@ -7,5 +7,20 @@
     <string name="toast_wrong_name">Enter Name</string>
     <string name="toast_wrong_phoneNum">Enter Your 10 Digit Phone Number</string>
 
+    <string name="picker_add_photo">ADD PHOTO</string>
+    <string name="picker_add_video">ADD VIDEO</string>
+    <string name="picker_add_story">CREATE A NEW SHOW</string>
+    <string name="picker_gallery">VIEW PHOTOS/VIDEOS</string>
+    <string name="picker_participate">HOST A SHOW</string>
+
+    <string name="newshow_heading">CREATE A NEW SHOW</string>
+    <string name="newshow_showname">Enter Name for the Show</string>
+    <string name="newshow_showdate">Date</string>
+    <string name="newshow_showtime">Time</string>
+    <string name="newshow_showpath">Video</string>
+    <string name="newshow_showparticipants">Enter List of Phone Numbers \n (separated by a , )</string>
+    <string name="newshow_ok">OK</string>
+
     <string name="server_client_id">849083346543-3nh3ppr0b4tpgltfe2h1ita104jqk5sm.apps.googleusercontent.com/</string>
 </resources>
+
