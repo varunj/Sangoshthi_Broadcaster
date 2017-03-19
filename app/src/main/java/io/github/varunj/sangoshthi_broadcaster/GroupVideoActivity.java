@@ -55,7 +55,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 
 public class GroupVideoActivity extends AppCompatActivity {
-    private String receiverGroupName , senderPhoneNum;
+    private String receiverGroupName, senderPhoneNum;
     private Message message1;
     Thread publishThread;
 
@@ -79,7 +79,7 @@ public class GroupVideoActivity extends AppCompatActivity {
     private final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private final int BUFFER_SEGMENT_COUNT = 256;
     private String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:40.0) Gecko/20100101 Firefox/40.0";
-    private String VIDEO_URI = "/video.mp4";
+    private String VIDEO_URI = "/";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,9 +91,10 @@ public class GroupVideoActivity extends AppCompatActivity {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        // get groupName and senderPhoneNumber
+        // get groupName and senderPhoneNumber and videoname
         Intent i = getIntent();
         receiverGroupName = i.getStringExtra("groupName");
+        VIDEO_URI = "/" + i.getStringExtra("videoname");
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         senderPhoneNum = pref.getString("phoneNum", "0000000000");
 
@@ -153,7 +154,6 @@ public class GroupVideoActivity extends AppCompatActivity {
                                 // xxx: read http://www.rabbitmq.com/tutorials/tutorial-three-python.html, http://stackoverflow.com/questions/10620976/rabbitmq-amqp-single-queue-multiple-consumers-for-same-message
                                 // channel.basicPublish(exchangeName, routingKey, null, messageBodyBytes);
                                 channel.basicPublish("amq.fanout", message1.getReceiver(), null, SerializationUtils.serialize(message1));
-
                                 displayMessage(message1, 1);
                                 channel.waitForConfirmsOrDie();
                             } catch (Exception e) {

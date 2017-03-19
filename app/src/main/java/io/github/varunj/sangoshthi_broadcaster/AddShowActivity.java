@@ -50,7 +50,8 @@ public class AddShowActivity extends AppCompatActivity {
     EditText newshow_showname, newshow_showparticipants;
 
     private String senderPhoneNum;
-    private Message message1;
+    private JSONObject message1;
+    private BlockingDeque<JSONObject> queue = new LinkedBlockingDeque<>();
     Thread publishThread;
 
     public String showTime = "-1", showDate = "-1", showPath = "-1";
@@ -61,7 +62,6 @@ public class AddShowActivity extends AppCompatActivity {
         setContentView(R.layout.activity_addshow);
 
         // AMQP stuff
-        final JSONObject jsonObject = new JSONObject();
         setupConnectionFactory();
         publishToAMQP();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -100,9 +100,10 @@ public class AddShowActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         int mYear = year;
-                        int mMonth = monthOfYear;
+                        // xxx: i have no clue why +1
+                        int mMonth = monthOfYear+1;
                         int mDay = dayOfMonth;
-                        showDate = "" + mDay + ":" + mMonth + ":" + mYear;
+                        showDate = "" + mDay + "/" + mMonth + "/" + mYear;
                         newshow_showdate.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.picker_add_story));
                     }
                 }
@@ -129,6 +130,7 @@ public class AddShowActivity extends AppCompatActivity {
                 if (newshow_showname.getText().toString().trim().length() > 0 && newshow_showparticipants.getText().toString().trim().length() > 0
                         && !showPath.equals("-1") && !showDate.equals("-1") && !showTime.equals("-1")) {
                     try {
+                        final JSONObject jsonObject = new JSONObject();
                         jsonObject.put("objective", "create_show");
                         jsonObject.put("show_name", newshow_showname.getText().toString().trim());
                         jsonObject.put("video_name", showPath);
@@ -137,10 +139,12 @@ public class AddShowActivity extends AppCompatActivity {
                         for (String x: newshow_showparticipants.getText().toString().trim().split(",")) {
                             temp.add(x.trim());
                         }
-                        temp.add(senderPhoneNum);
                         jsonObject.put("list_of_asha", temp);
-                        publishMessage(jsonObject);
+                        jsonObject.put("broadcaster", senderPhoneNum);
+                        queue.putLast(jsonObject);
                     } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -205,10 +209,10 @@ public class AddShowActivity extends AppCompatActivity {
                             try {
                                 // xxx: read http://www.rabbitmq.com/api-guide.html. Set QueueName=RoutingKey to send message to only 1 queue
                                 channel.exchangeDeclare("defaultExchangeName", "direct", true);
-                                channel.queueDeclare(message1.getReceiver(), false, false, false, null);
-                                channel.queueBind(message1.getReceiver(), "defaultExchangeName", message1.getReceiver());
+                                channel.queueDeclare("show_details", false, false, false, null);
+                                channel.queueBind("show_details", "defaultExchangeName", "show_details");
                                 // send message1
-                                channel.basicPublish("defaultExchangeName", message1.getReceiver(), null, message1.toString().getBytes());
+                                channel.basicPublish("defaultExchangeName", "show_details", null, message1.toString().getBytes());
                                 displayMessage(message1, 1);
                                 channel.waitForConfirmsOrDie();
                             } catch (Exception e) {
@@ -232,22 +236,8 @@ public class AddShowActivity extends AppCompatActivity {
         publishThread.start();
     }
 
-    private BlockingDeque<Message> queue = new LinkedBlockingDeque<>();
-    void publishMessage(JSONObject message) {
-        try {
-            Message chatMessage = new Message();
-            chatMessage.setMessageJSON(message);
-            chatMessage.setTimestamp(DateFormat.getDateTimeInstance().format(new java.util.Date()));
-            chatMessage.setSender(senderPhoneNum);
-            chatMessage.setReciever("show_details");
-            queue.putLast(chatMessage);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void displayMessage(Message message, int x) {
-        System.out.println("xxx:" + x + "   " + message.getSender() + "->" + message.getReceiver() + "   " + message.getMessageJSON() + "   " + message.getTimestamp());
+    public void displayMessage(JSONObject message, int x) {
+        System.out.println("xxx:" + x + "   " + message);
     }
 
 }

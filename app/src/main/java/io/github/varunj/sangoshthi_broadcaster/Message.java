@@ -27,13 +27,6 @@ public class Message implements java.io.Serializable {
         return message;
     }
 
-    public void setMessageJSON(JSONObject message) {
-        this.messageJSON = message;
-    }
-    public JSONObject getMessageJSON() {
-        return messageJSON;
-    }
-
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }

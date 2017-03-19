@@ -36,6 +36,7 @@ dependencies {
     })
     compile 'com.google.android.exoplayer:exoplayer:r1.5.7'
     compile 'com.google.android.gms:play-services-auth:10.2.0'
+    compile 'com.google.code.gson:gson:2.6.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

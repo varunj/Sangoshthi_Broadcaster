@@ -60,7 +60,7 @@ public class AddVideoActivity extends AppCompatActivity {
     String mCurrentPhotoPath;
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = timeStamp + "_";
+        String imageFileName = "IMG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/Sangoshthi_Broadcaster");
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
