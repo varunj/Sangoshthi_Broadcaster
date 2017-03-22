@@ -37,8 +37,6 @@ public class VIewGalleryActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-        File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS + "/Sangoshthi");
-
         String bucketId = "";
         final String[] projection = new String[] {"DISTINCT " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME + ", " + MediaStore.Images.Media.BUCKET_ID};
         final Cursor cur = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);

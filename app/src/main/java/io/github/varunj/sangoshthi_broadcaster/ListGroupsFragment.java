@@ -28,7 +28,6 @@ public class ListGroupsFragment extends Fragment {
         View v = inflater.inflate(R.layout.activity_list_groups, null);
         ListView listView = (ListView)v.findViewById(R.id.listView);
 
-        System.out.println("xxx: " + dataList);
         ListAdapter adapter = new SimpleAdapter(getActivity(), dataList,
                 R.layout.list_layout_group, new String[]{
                 "showName", "timeOfAir", "videoName", "ashaList"}, new int[] {
@@ -40,7 +39,7 @@ public class ListGroupsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int arg2, long arg3) {
                 Intent i = new Intent(getActivity(), GroupVideoActivity.class);
-                i.putExtra("groupName", ((TextView) view.findViewById(R.id.showname)).getText().toString());
+                i.putExtra("showName", ((TextView) view.findViewById(R.id.showname)).getText().toString());
                 i.putExtra("timeofair", ((TextView) view.findViewById(R.id.timeofair)).getText().toString());
                 i.putExtra("videoname", ((TextView) view.findViewById(R.id.videoname)).getText().toString());
                 i.putExtra("ashalist", ((TextView) view.findViewById(R.id.ashalist)).getText().toString());

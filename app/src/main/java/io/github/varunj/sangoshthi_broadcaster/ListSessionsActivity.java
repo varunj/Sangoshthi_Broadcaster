@@ -22,7 +22,6 @@ import org.json.JSONObject;
 
 public class ListSessionsActivity extends AppCompatActivity {
 
-    private String senderPhoneNum;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     public static ArrayList<HashMap<String, String>> dataList;
@@ -34,8 +33,7 @@ public class ListSessionsActivity extends AppCompatActivity {
 
         dataList = new ArrayList<>();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        senderPhoneNum = pref.getString("phoneNum", "0000000000");
-        new GetData().execute("http://192.168.2.71:8000/shows/broadcasters/" + senderPhoneNum);
+        new GetData().execute("http://192.168.2.71:8000/shows/broadcasters/" + pref.getString("phoneNum", "0000000000"));
     }
 
     @Override
@@ -85,10 +83,7 @@ public class ListSessionsActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(),
-                                    "Json parsing error: " + e.getMessage(),
-                                    Toast.LENGTH_LONG)
-                                    .show();
+                            Toast.makeText(getApplicationContext(),"Json parsing error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
 
@@ -98,10 +93,7 @@ public class ListSessionsActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Error!",
-                                Toast.LENGTH_LONG)
-                                .show();
+                        Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_LONG).show();
                     }
                 });
             }

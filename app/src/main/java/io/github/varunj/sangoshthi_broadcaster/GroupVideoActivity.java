@@ -34,6 +34,9 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -44,6 +47,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
@@ -55,10 +59,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 
 public class GroupVideoActivity extends AppCompatActivity {
-    private String receiverGroupName, senderPhoneNum;
-    private Message message1;
-    Thread publishThread;
-
+    private String showName, senderPhoneNum;
     private SurfaceView surfaceView;
     private SeekBar seekPlayerProgress;
     private TextView txtCurrentTime;
@@ -91,16 +92,16 @@ public class GroupVideoActivity extends AppCompatActivity {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        // get groupName and senderPhoneNumber and videoname
+        // get showName and senderPhoneNumber and videoname
         Intent i = getIntent();
-        receiverGroupName = i.getStringExtra("groupName");
+        showName = i.getStringExtra("showName");
         VIDEO_URI = "/" + i.getStringExtra("videoname");
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         senderPhoneNum = pref.getString("phoneNum", "0000000000");
 
         // AMQP stuff
-        setupConnectionFactory();
-        publishToAMQP();
+        AMQPPublishFanOut.setupConnectionFactory();
+        AMQPPublishFanOut.publishToAMQP();
 
         // Video Player Stuff
         setContentView(R.layout.video_player_layout);
@@ -121,78 +122,24 @@ public class GroupVideoActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        publishThread.interrupt();
+        AMQPPublishFanOut.publishThread.interrupt();
     }
 
-    ConnectionFactory factory = new ConnectionFactory();
-    private void setupConnectionFactory() {
-        try {
-            factory.setUsername(StarterActivity.SERVER_USERNAME);
-            factory.setPassword(StarterActivity.SERVER_PASS);
-            factory.setHost(StarterActivity.IP_ADDR);
-            factory.setPort(StarterActivity.SERVER_PORT);
-            factory.setAutomaticRecoveryEnabled(true);
-            factory.setNetworkRecoveryInterval(10000);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void publishToAMQP() {
-        publishThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    try {
-                        Connection connection = factory.newConnection();
-                        Channel channel = connection.createChannel();
-                        channel.confirmSelect();
-                        while (true) {
-                            message1 = queue.takeFirst();
-                            try {
-                                // xxx: read http://www.rabbitmq.com/tutorials/tutorial-three-python.html, http://stackoverflow.com/questions/10620976/rabbitmq-amqp-single-queue-multiple-consumers-for-same-message
-                                // channel.basicPublish(exchangeName, routingKey, null, messageBodyBytes);
-                                channel.basicPublish("amq.fanout", message1.getReceiver(), null, SerializationUtils.serialize(message1));
-                                displayMessage(message1, 1);
-                                channel.waitForConfirmsOrDie();
-                            } catch (Exception e) {
-                                queue.putFirst(message1);
-                                throw e;
-                            }
-                        }
-                    } catch (InterruptedException e) {
-                        break;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        try {
-                            Thread.sleep(5000); //sleep and then try again
-                        } catch (InterruptedException e1) {
-                            break;
-                        }
-                    }
-                }
-            }
-        });
-        publishThread.start();
-    }
-
-    private BlockingDeque<Message> queue = new LinkedBlockingDeque<Message>();
     void publishMessage(String message) {
         try {
-            Message chatMessage = new Message();
-            chatMessage.setMessage(message);
-            chatMessage.setTimestamp(DateFormat.getDateTimeInstance().format(new Date()));
-            chatMessage.setSender(senderPhoneNum);
-            chatMessage.setReciever(receiverGroupName);
-            queue.putLast(chatMessage);
+            final JSONObject jsonObject = new JSONObject();
+            //primary key: <broadcaster, show_name>
+            jsonObject.put("objective", "control_show");
+            jsonObject.put("broadcaster", senderPhoneNum);
+            jsonObject.put("show_name", showName);
+            jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+            jsonObject.put("message", message);
+            AMQPPublishFanOut.queue.putLast(jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    public void displayMessage(Message message, int x) {
-        System.out.println("xxx:" + x + "   " + message.getSender() + "->" + message.getReceiver() + "   " + message.getMessage() + "   " + message.getTimestamp());
     }
 
     // initialising media control
