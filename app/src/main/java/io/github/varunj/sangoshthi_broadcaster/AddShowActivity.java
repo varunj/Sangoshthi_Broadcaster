@@ -1,7 +1,9 @@
 package io.github.varunj.sangoshthi_broadcaster;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -46,6 +48,10 @@ public class AddShowActivity extends AppCompatActivity {
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         senderPhoneNum = pref.getString("phoneNum", "0000000000");
+
+        // AMQP stuff
+        AMQPPublish.setupConnectionFactory();
+        AMQPPublish.publishToAMQP();
 
         // initialise screen elements
         newshow_showname = (EditText)findViewById(R.id.newshow_showname);
@@ -105,9 +111,6 @@ public class AddShowActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (newshow_showname.getText().toString().trim().length() > 0 && newshow_showparticipants.getText().toString().trim().length() > 0
                         && !showPath.equals("-1") && !showDate.equals("-1") && !showTime.equals("-1")) {
-
-                    AMQPPublish.setupConnectionFactory();
-                    AMQPPublish.publishToAMQP();
                     try {
                         final JSONObject jsonObject = new JSONObject();
                         //primary key: <broadcaster, show_name>
@@ -140,7 +143,14 @@ public class AddShowActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AMQPPublish.publishThread.interrupt();
+        if (AMQPPublish.publishThread != null)
+            AMQPPublish.publishThread.interrupt();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (AMQPPublish.publishThread != null)
+            AMQPPublish.publishThread.interrupt();
     }
 
     @Override

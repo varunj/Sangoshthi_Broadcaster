@@ -21,6 +21,9 @@
     <string name="newshow_showparticipants">Enter List of Phone Numbers \n (separated by a , )</string>
     <string name="newshow_ok">OK</string>
 
+    <string name="groupvideo_nosLikesQuery">Likes: 0, Queries: 0/0 </string>
+    <string name="groupvideo_flushQueries">Flush Queries</string>
+
     <string name="server_client_id">849083346543-3nh3ppr0b4tpgltfe2h1ita104jqk5sm.apps.googleusercontent.com/</string>
 </resources>
 

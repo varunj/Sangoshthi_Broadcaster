@@ -1,5 +1,7 @@
 package io.github.varunj.sangoshthi_broadcaster;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaCodec;
@@ -29,9 +31,11 @@ import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.json.JSONArray;
@@ -81,6 +85,7 @@ public class GroupVideoActivity extends AppCompatActivity {
     private final int BUFFER_SEGMENT_COUNT = 256;
     private String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:40.0) Gecko/20100101 Firefox/40.0";
     private String VIDEO_URI = "/";
+    Thread subscribeThread;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,6 +107,10 @@ public class GroupVideoActivity extends AppCompatActivity {
         // AMQP stuff
         AMQPPublishFanOut.setupConnectionFactory();
         AMQPPublishFanOut.publishToAMQP();
+        AMQPPublish.setupConnectionFactory();
+        AMQPPublish.publishToAMQP();
+        setupConnectionFactory();
+        subscribe();
 
         // Video Player Stuff
         setContentView(R.layout.video_player_layout);
@@ -117,15 +126,80 @@ public class GroupVideoActivity extends AppCompatActivity {
                 setProgress();
             }
         }
+
+        final Button button_groupvideo_flushQueries = (Button) findViewById(R.id.flushQueries);
+        button_groupvideo_flushQueries.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                final TextView text_groupvideo_nosLikesQuery = (TextView) findViewById(R.id.nosLikesQuery);
+                String temp = text_groupvideo_nosLikesQuery.getText().toString();
+                System.out.println("xxx: " + temp);
+                text_groupvideo_nosLikesQuery.setText("Likes: 0, Queries: 0/0");
+                try {
+                    final JSONObject jsonObject = new JSONObject();
+                    //primary key: <broadcaster, show_name>
+                    jsonObject.put("objective", "control_show_flush");
+                    jsonObject.put("broadcaster", senderPhoneNum);
+                    jsonObject.put("show_name", showName);
+                    jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+                    AMQPPublish.queue.putLast(jsonObject);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AMQPPublishFanOut.publishThread.interrupt();
+        if (AMQPPublishFanOut.publishThread != null)
+            AMQPPublishFanOut.publishThread.interrupt();
+        if (AMQPPublish.publishThread != null)
+            AMQPPublish.publishThread.interrupt();
+        if (subscribeThread != null)
+            subscribeThread.interrupt();
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle("Closing Activity")
+                .setMessage("Sure you don't want to continue?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+        if (AMQPPublishFanOut.publishThread != null)
+            AMQPPublishFanOut.publishThread.interrupt();
+        if (AMQPPublish.publishThread != null)
+            AMQPPublish.publishThread.interrupt();
+        if (subscribeThread != null)
+            subscribeThread.interrupt();
     }
 
     void publishMessage(String message) {
+        try {
+            final JSONObject jsonObject = new JSONObject();
+            //primary key: <broadcaster, show_name>
+            jsonObject.put("objective", "control_show_flush");
+            jsonObject.put("broadcaster", senderPhoneNum);
+            jsonObject.put("show_name", showName);
+            jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+            jsonObject.put("message", message);
+            AMQPPublish.queue.putLast(jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         try {
             final JSONObject jsonObject = new JSONObject();
             //primary key: <broadcaster, show_name>
@@ -141,6 +215,95 @@ public class GroupVideoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    // subscribe to RabbitMQ
+    public static ConnectionFactory factory = new ConnectionFactory();
+    public static  void setupConnectionFactory() {
+        try {
+            factory.setUsername(StarterActivity.SERVER_USERNAME);
+            factory.setPassword(StarterActivity.SERVER_PASS);
+            factory.setHost(StarterActivity.IP_ADDR);
+            factory.setPort(StarterActivity.SERVER_PORT);
+            factory.setAutomaticRecoveryEnabled(true);
+            factory.setNetworkRecoveryInterval(10000);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    void subscribe() {
+        subscribeThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        Connection connection = factory.newConnection();
+                        Channel channel = connection.createChannel();
+
+                        // xxx: read http://www.rabbitmq.com/tutorials/tutorial-three-python.html, http://stackoverflow.com/questions/10620976/rabbitmq-amqp-single-queue-multiple-consumers-for-same-message
+                        channel.queueDeclare("server_to_broadcaster", false, false, false, null);
+                        QueueingConsumer consumer = new QueueingConsumer(channel);
+                        channel.basicConsume("server_to_broadcaster", true, consumer);
+
+                        while (true) {
+                            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                            final JSONObject message = new JSONObject(new String(delivery.getBody()));
+
+                            try {
+                                System.out.println("xxx:" + " " + message.getString("objective") + ":" +
+                                        message.getString("sender") + "->" + message.getString("location") +
+                                        " " + message.getString("show_name"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            if (message.getString("objective").equals("like")) {
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        final TextView text_groupvideo_nosLikesQuery = (TextView) findViewById(R.id.nosLikesQuery);
+                                        String temp = text_groupvideo_nosLikesQuery.getText().toString();
+                                        System.out.println("xxx: " + temp);
+                                        int likes = Integer.parseInt(temp.split(",")[0].split(":")[1].trim());
+                                        int queries = Integer.parseInt(temp.split(",")[1].trim().split(":")[1].trim().split("/")[0]);
+                                        int total = Integer.parseInt(temp.split(",")[1].split(":")[1].trim().split("/")[1]);
+                                        text_groupvideo_nosLikesQuery.setText("Likes: " + (likes+1) + ", Queries:" + queries + "/" + total);
+                                    }
+                                });
+
+                            }
+                            else if (message.getString("objective").equals("query")) {
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        final TextView text_groupvideo_nosLikesQuery = (TextView) findViewById(R.id.nosLikesQuery);
+                                        String temp = text_groupvideo_nosLikesQuery.getText().toString();
+                                        System.out.println("xxx: " + temp);
+                                        int likes = Integer.parseInt(temp.split(",")[0].split(":")[1].trim());
+                                        int queries = Integer.parseInt(temp.split(",")[1].trim().split(":")[1].trim().split("/")[0]);
+                                        int total = Integer.parseInt(temp.split(",")[1].split(":")[1].trim().split("/")[1]);
+                                        text_groupvideo_nosLikesQuery.setText("Likes: " + likes + ", Queries:" + (queries+1) + "/" + total);
+                                    }
+                                });
+
+                            }
+
+                        }
+                    } catch (InterruptedException e) {
+                        break;
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                        try {
+                            Thread.sleep(4000); //sleep and then try again
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        subscribeThread.start();
+    }
+
 
     // initialising media control
     private void initMediaControls() {
