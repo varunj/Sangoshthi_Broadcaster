@@ -142,15 +142,16 @@ public class AddShowActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (AMQPPublish.publishThread != null)
             AMQPPublish.publishThread.interrupt();
+        super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
         if (AMQPPublish.publishThread != null)
             AMQPPublish.publishThread.interrupt();
+        super.onBackPressed();
     }
 
     @Override

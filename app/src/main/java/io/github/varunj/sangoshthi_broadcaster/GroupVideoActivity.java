@@ -154,13 +154,13 @@ public class GroupVideoActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (AMQPPublishFanOut.publishThread != null)
             AMQPPublishFanOut.publishThread.interrupt();
         if (AMQPPublish.publishThread != null)
             AMQPPublish.publishThread.interrupt();
         if (subscribeThread != null)
             subscribeThread.interrupt();
+        super.onDestroy();
     }
 
     @Override
