@@ -42,6 +42,10 @@
             android:label="@string/app_name">
         </activity>
 
+        <activity android:name=".StartShowCallsActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
         <activity android:name=".GroupVideoActivity">
         </activity>
 

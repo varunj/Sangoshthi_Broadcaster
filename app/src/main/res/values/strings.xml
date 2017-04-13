@@ -24,6 +24,11 @@
     <string name="groupvideo_nosLikesQuery">Likes: 0, Queries: 0/0 </string>
     <string name="groupvideo_flushQueries">Flush Queries</string>
 
+    <string name="startshowcalls_heading">Initialise the Show</string>
+    <string name="startshowcalls_participants">0/0</string>
+    <string name="startshowcalls_initSelf">Add Self</string>
+    <string name="startshowcalls_initAshas">Add ASHAs</string>
+
     <string name="server_client_id">849083346543-3nh3ppr0b4tpgltfe2h1ita104jqk5sm.apps.googleusercontent.com/</string>
 </resources>
 
