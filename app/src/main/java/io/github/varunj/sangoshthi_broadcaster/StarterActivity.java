@@ -103,7 +103,6 @@ public class StarterActivity extends AppCompatActivity implements
             Toast.makeText(StarterActivity.this, getString(R.string.toast_wrong_name), Toast.LENGTH_LONG).show();
         }
 
-
         // Signed in successfully.
 //        if (result.isSuccess()) {
 //            if(editTextName.getText().toString().length() >= Integer.parseInt(getString(R.string.register_minLen_name))) {

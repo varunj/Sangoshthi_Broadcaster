@@ -170,7 +170,7 @@ public class StartShowCallsActivity extends AppCompatActivity  {
                                     iNew.putExtra("VIDEO_URI", VIDEO_URI);
                                     startActivity(iNew);
                                 }
-
+                                // xxx: onDestroy?
                             }
                         }
                     } catch (InterruptedException e) {

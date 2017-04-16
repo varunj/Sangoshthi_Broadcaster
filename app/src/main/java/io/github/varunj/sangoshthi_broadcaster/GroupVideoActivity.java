@@ -105,10 +105,16 @@ public class GroupVideoActivity extends AppCompatActivity {
         senderPhoneNum = pref.getString("phoneNum", "0000000000");
 
         // AMQP stuff
+        // for show control
         AMQPPublishFanOut.setupConnectionFactory();
         AMQPPublishFanOut.publishToAMQP();
+        // for flush
         AMQPPublish.setupConnectionFactory();
         AMQPPublish.publishToAMQP();
+        // for show end
+        AMQPPublishFreeSwitch.setupConnectionFactory();
+        AMQPPublishFreeSwitch.publishToAMQP();
+        // for query, like count
         setupConnectionFactory();
         subscribe();
 
@@ -158,6 +164,8 @@ public class GroupVideoActivity extends AppCompatActivity {
             AMQPPublishFanOut.publishThread.interrupt();
         if (AMQPPublish.publishThread != null)
             AMQPPublish.publishThread.interrupt();
+        if (AMQPPublishFreeSwitch.publishThreadFreeSwitch != null)
+            AMQPPublishFreeSwitch.publishThreadFreeSwitch.interrupt();
         if (subscribeThread != null)
             subscribeThread.interrupt();
         super.onDestroy();
@@ -171,35 +179,38 @@ public class GroupVideoActivity extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+                        // send closing command for freeswitch
+                        try {
+                            final JSONObject jsonObject = new JSONObject();
+                            //primary key: <, >
+                            jsonObject.put("objective", "end_show");
+                            jsonObject.put("show_name", showName);
+                            jsonObject.put("video_name", VIDEO_URI);
+                            jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+                            AMQPPublishFreeSwitch.queue.putLast(jsonObject);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (AMQPPublishFanOut.publishThread != null)
+                            AMQPPublishFanOut.publishThread.interrupt();
+                        if (AMQPPublish.publishThread != null)
+                            AMQPPublish.publishThread.interrupt();
+                        if (AMQPPublishFreeSwitch.publishThreadFreeSwitch != null)
+                            AMQPPublishFreeSwitch.publishThreadFreeSwitch.interrupt();
+                        if (subscribeThread != null)
+                            subscribeThread.interrupt();
                         finish();
                     }
                 })
                 .setNegativeButton("No", null)
                 .show();
-        if (AMQPPublishFanOut.publishThread != null)
-            AMQPPublishFanOut.publishThread.interrupt();
-        if (AMQPPublish.publishThread != null)
-            AMQPPublish.publishThread.interrupt();
-        if (subscribeThread != null)
-            subscribeThread.interrupt();
     }
 
     void publishMessage(String message) {
-        try {
-            final JSONObject jsonObject = new JSONObject();
-            //primary key: <broadcaster, show_name>
-            jsonObject.put("objective", "control_show_flush");
-            jsonObject.put("broadcaster", senderPhoneNum);
-            jsonObject.put("show_name", showName);
-            jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
-            jsonObject.put("message", message);
-            AMQPPublish.queue.putLast(jsonObject);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         try {
             final JSONObject jsonObject = new JSONObject();
             //primary key: <broadcaster, show_name>
