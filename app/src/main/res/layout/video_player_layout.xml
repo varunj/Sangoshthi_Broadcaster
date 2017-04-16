@@ -15,7 +15,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="250dp"
                 android:id="@+id/player_frame_layout">
 
                 <SurfaceView
@@ -44,6 +44,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/groupvideo_flushQueries"
                 android:layout_below="@+id/player_frame_layout" />
+
+            <ListView
+                android:id="@+id/groupvideo_ashalist_master"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/flushQueries" />
 
         </RelativeLayout>
 

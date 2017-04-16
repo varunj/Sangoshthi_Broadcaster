@@ -29,7 +29,7 @@ import java.util.Date;
  */
 
 public class StartShowCallsActivity extends AppCompatActivity  {
-    private String showName;
+    private String showName, ashalist;
     private String VIDEO_URI = "/";
     private int totalASHAs = 0, activeASHAs = 0;
     Thread subscribeThread;
@@ -43,9 +43,10 @@ public class StartShowCallsActivity extends AppCompatActivity  {
         Intent i = getIntent();
         showName = i.getStringExtra("showName");
         VIDEO_URI = "/" + i.getStringExtra("videoname");
+        ashalist = i.getStringExtra("ashalist");
 
         // calculate nos
-        totalASHAs = i.getStringExtra("ashalist").split(",").length;
+        totalASHAs = ashalist.split(",").length;
         final TextView startshowcalls_participants = (TextView) findViewById(R.id.startshowcalls_participants);
         startshowcalls_participants.setText("0/" + totalASHAs);
 
@@ -168,6 +169,7 @@ public class StartShowCallsActivity extends AppCompatActivity  {
                                     Intent iNew = new Intent(getApplicationContext(), GroupVideoActivity.class);
                                     iNew.putExtra("showName", showName);
                                     iNew.putExtra("VIDEO_URI", VIDEO_URI);
+                                    iNew.putExtra("ashalist", ashalist);
                                     startActivity(iNew);
                                 }
                                 // xxx: onDestroy?

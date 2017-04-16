@@ -15,12 +15,15 @@ import android.text.TextUtils;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -52,6 +55,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
@@ -63,7 +68,12 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 
 public class GroupVideoActivity extends AppCompatActivity {
-    private String showName, senderPhoneNum;
+    private String showName, senderPhoneNum, ashalist;
+    ArrayList<String> ashaListNames;
+    ArrayList<Integer> ashaListQuery;
+    ArrayList<Integer> ashaListActive;
+    ArrayList<Integer> ashaListSpeaker;
+
     private SurfaceView surfaceView;
     private SeekBar seekPlayerProgress;
     private TextView txtCurrentTime;
@@ -101,6 +111,7 @@ public class GroupVideoActivity extends AppCompatActivity {
         Intent i = getIntent();
         showName = i.getStringExtra("showName");
         VIDEO_URI = "/" + i.getStringExtra("videoname");
+        ashalist = i.getStringExtra("ashalist");
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         senderPhoneNum = pref.getString("phoneNum", "0000000000");
 
@@ -133,6 +144,7 @@ public class GroupVideoActivity extends AppCompatActivity {
             }
         }
 
+        // flush query button listener
         final Button button_groupvideo_flushQueries = (Button) findViewById(R.id.flushQueries);
         button_groupvideo_flushQueries.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -153,6 +165,71 @@ public class GroupVideoActivity extends AppCompatActivity {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+                ashaListQuery = new ArrayList<>(Collections.nCopies(ashaListNames.size(), 0));
+                populateAshaList(ashaListNames);
+            }
+        });
+
+        // populateAshaList
+        String[] temp1 = ashalist.replace("[","").replace("]","").replace("\"","").replace("\"","").split(",");
+        ashaListNames = new ArrayList<>(Arrays.asList(temp1));
+        ashaListQuery = new ArrayList<>(Collections.nCopies(temp1.length, 0));
+        ashaListActive = new ArrayList<>(Collections.nCopies(temp1.length, R.drawable.red));
+        ashaListSpeaker = new ArrayList<>(Collections.nCopies(temp1.length, R.drawable.speakernot));
+        populateAshaList(ashaListNames);
+    }
+
+    void populateAshaList(final ArrayList<String> ashaListNames) {
+        ListView list = (ListView)findViewById(R.id.groupvideo_ashalist_master);
+        GroupVideoAshaListAdapter adapter = new GroupVideoAshaListAdapter(this, ashaListNames, ashaListActive, ashaListQuery, ashaListSpeaker);
+        adapter.setNotifyOnChange(true);
+        list.setAdapter(adapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // mute unmute
+                if (ashaListSpeaker.get(position) == R.drawable.speakernot) {
+                    ashaListSpeaker.set(position, R.drawable.speaker);
+                    populateAshaList(ashaListNames);
+                    // send unmute command for freeswitch
+                    try {
+                        final JSONObject jsonObject = new JSONObject();
+                        //primary key: <, >
+                        jsonObject.put("objective", "mute/unmute");
+                        jsonObject.put("show_name", showName);
+                        jsonObject.put("sender_phone_no", senderPhoneNum);
+                        jsonObject.put("video_name", VIDEO_URI);
+                        jsonObject.put("task", "unmute");
+                        jsonObject.put("asha", ashaListNames.get(position));
+                        jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+                        AMQPPublishFreeSwitch.queue.putLast(jsonObject);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    ashaListSpeaker.set(position, R.drawable.speakernot);
+                    populateAshaList(ashaListNames);
+                    // send mute command for freeswitch
+                    try {
+                        final JSONObject jsonObject = new JSONObject();
+                        //primary key: <, >
+                        jsonObject.put("objective", "mute/unmute");
+                        jsonObject.put("show_name", showName);
+                        jsonObject.put("sender_phone_no", senderPhoneNum);
+                        jsonObject.put("video_name", VIDEO_URI);
+                        jsonObject.put("task", "mute");
+                        jsonObject.put("asha", ashaListNames.get(position));
+                        jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+                        AMQPPublishFreeSwitch.queue.putLast(jsonObject);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -260,6 +337,8 @@ public class GroupVideoActivity extends AppCompatActivity {
                             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                             final JSONObject message = new JSONObject(new String(delivery.getBody()));
                             System.out.println("xxx:" + message.toString());
+
+                            // like count
                             if (message.getString("objective").equals("like")) {
                                 runOnUiThread(new Runnable() {
                                     public void run() {
@@ -274,6 +353,7 @@ public class GroupVideoActivity extends AppCompatActivity {
                                 });
 
                             }
+                            // query count
                             else if (message.getString("objective").equals("query")) {
                                 runOnUiThread(new Runnable() {
                                     public void run() {
@@ -288,7 +368,20 @@ public class GroupVideoActivity extends AppCompatActivity {
                                 });
 
                             }
-
+                            // asha query
+                            else if (message.getString("objective").equals("asha_query")) {
+                                ashaListQuery.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.query);
+                                populateAshaList(ashaListNames);
+                            }
+                            // asha active
+                            else if (message.getString("objective").equals("asha_active")) {
+                                if (message.getString("task").equals("make_active")) {
+                                    ashaListActive.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.green);
+                                }
+                                if (message.getString("task").equals("make_inactive")) {
+                                    ashaListActive.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.red);
+                                }
+                            }
                         }
                     } catch (InterruptedException e) {
                         break;
