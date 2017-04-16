@@ -53,7 +53,7 @@ public class AMQPPublish {
                                 channel.queueDeclare(QUEUE_NAME, false, false, false, null);
                                 channel.queueBind(QUEUE_NAME, "defaultExchangeName", QUEUE_NAME);
                                 channel.basicPublish("defaultExchangeName", QUEUE_NAME, null, messagePresent.toString().getBytes());
-                                displayMessage(messagePresent);
+                                System.out.println("xxx:" + messagePresent.toString());
                                 channel.waitForConfirmsOrDie();
                             } catch (Exception e) {
                                 queue.putFirst(messagePresent);
@@ -78,15 +78,4 @@ public class AMQPPublish {
         });
         publishThread.start();
     }
-
-    public static void displayMessage(JSONObject message) {
-        try {
-            System.out.println("xxx:" + " " + message.getString("objective") + ":" + message.getString("show_name") + " " +
-                    message.getString("broadcaster") + "->" + message.getString("list_of_asha") +
-                    " " + message.getString("video_name") + "@" + message.getString("time_of_airing") + " " + message.getString("timestamp"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

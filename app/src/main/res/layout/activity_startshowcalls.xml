@@ -31,7 +31,7 @@
         android:text="@string/startshowcalls_initAshas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/newshow_showdate"
+        android:id="@+id/startshowcalls_initASHA"
         android:layout_alignBottom="@+id/startshowcalls_participants"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="78dp" />
@@ -41,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/startshowcalls_initSelf"
-        android:layout_above="@+id/newshow_showdate"
+        android:layout_above="@+id/startshowcalls_initASHA"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="90dp" />
 

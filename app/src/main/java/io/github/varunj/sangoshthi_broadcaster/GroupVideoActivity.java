@@ -248,15 +248,7 @@ public class GroupVideoActivity extends AppCompatActivity {
                         while (true) {
                             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                             final JSONObject message = new JSONObject(new String(delivery.getBody()));
-
-                            try {
-                                System.out.println("xxx:" + " " + message.getString("objective") + ":" +
-                                        message.getString("sender") + "->" + message.getString("location") +
-                                        " " + message.getString("show_name"));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
+                            System.out.println("xxx:" + message.toString());
                             if (message.getString("objective").equals("like")) {
                                 runOnUiThread(new Runnable() {
                                     public void run() {
