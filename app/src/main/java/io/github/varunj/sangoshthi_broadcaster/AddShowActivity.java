@@ -116,6 +116,7 @@ public class AddShowActivity extends AppCompatActivity {
                         //primary key: <broadcaster, show_name>
                         jsonObject.put("objective", "create_show");
                         jsonObject.put("show_name", newshow_showname.getText().toString().trim());
+                        System.out.println("xxx;: " + showDate);
                         jsonObject.put("time_of_airing", showDate + " " + showTime);
                         jsonObject.put("broadcaster", senderPhoneNum);
                         jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));

@@ -82,53 +82,33 @@ public class StarterActivity extends AppCompatActivity implements
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        if(editTextName.getText().toString().length() >= Integer.parseInt(getString(R.string.register_minLen_name))) {
-            if(editTextPhone.getText().toString().length() == Integer.parseInt(getString(R.string.register_len_phoneNum))) {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("name", editTextName.getText().toString());
-                editor.putString("phoneNum", editTextPhone.getText().toString());
-                editor.putBoolean("isLoggedIn" , true);
-                editor.putString("googleEmail", "jainvarun.in@gmail.com");
-                editor.commit();
-                Intent intent = new Intent(this, PickerActivity.class);
-                startActivity(intent);
-                finish();
-            }
-            else {
-                Toast.makeText(StarterActivity.this, getString(R.string.toast_wrong_phoneNum), Toast.LENGTH_LONG).show();
-            }
-        }
-        else {
-            Toast.makeText(StarterActivity.this, getString(R.string.toast_wrong_name), Toast.LENGTH_LONG).show();
-        }
 
         // Signed in successfully.
-//        if (result.isSuccess()) {
-//            if(editTextName.getText().toString().length() >= Integer.parseInt(getString(R.string.register_minLen_name))) {
-//                if(editTextPhone.getText().toString().length() == Integer.parseInt(getString(R.string.register_len_phoneNum))) {
-//                    GoogleSignInAccount acct = result.getSignInAccount();
-//                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//                    SharedPreferences.Editor editor = prefs.edit();
-//                    editor.putString("name", editTextName.getText().toString());
-//                    editor.putString("phoneNum", editTextPhone.getText().toString());
-//                    editor.putBoolean("isLoggedIn" , true);
-//                    editor.putString("googleEmail", acct.getEmail());
-//                    editor.commit();
-//                    Intent intent = new Intent(this, PickerActivity.class);
-//                    startActivity(intent);
-//                    finish();
-//                }
-//                else {
-//                    Toast.makeText(StarterActivity.this, getString(R.string.toast_wrong_phoneNum), Toast.LENGTH_LONG).show();
-//                }
-//            }
-//            else {
-//                Toast.makeText(StarterActivity.this, getString(R.string.toast_wrong_name), Toast.LENGTH_LONG).show();
-//            }
-//        } else {
-//            Toast.makeText(this, "Unauthorized", Toast.LENGTH_SHORT).show();
-//        }
+        if (result.isSuccess()) {
+            if(editTextName.getText().toString().length() >= Integer.parseInt(getString(R.string.register_minLen_name))) {
+                if(editTextPhone.getText().toString().length() == Integer.parseInt(getString(R.string.register_len_phoneNum))) {
+                    GoogleSignInAccount acct = result.getSignInAccount();
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("name", editTextName.getText().toString());
+                    editor.putString("phoneNum", editTextPhone.getText().toString());
+                    editor.putBoolean("isLoggedIn" , true);
+                    editor.putString("googleEmail", acct.getEmail());
+                    editor.commit();
+                    Intent intent = new Intent(this, PickerActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                else {
+                    Toast.makeText(StarterActivity.this, getString(R.string.toast_wrong_phoneNum), Toast.LENGTH_LONG).show();
+                }
+            }
+            else {
+                Toast.makeText(StarterActivity.this, getString(R.string.toast_wrong_name), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(this, "Unauthorized", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

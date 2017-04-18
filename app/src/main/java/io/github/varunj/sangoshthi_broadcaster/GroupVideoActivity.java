@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -110,7 +111,7 @@ public class GroupVideoActivity extends AppCompatActivity {
         // get showName and senderPhoneNumber and videoname
         Intent i = getIntent();
         showName = i.getStringExtra("showName");
-        VIDEO_URI = "/" + i.getStringExtra("videoname");
+        VIDEO_URI = "/" + i.getStringExtra("VIDEO_URI");
         ashalist = i.getStringExtra("ashalist");
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         senderPhoneNum = pref.getString("phoneNum", "0000000000");
@@ -148,7 +149,6 @@ public class GroupVideoActivity extends AppCompatActivity {
         final Button button_groupvideo_flushQueries = (Button) findViewById(R.id.flushQueries);
         button_groupvideo_flushQueries.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
                 final TextView text_groupvideo_nosLikesQuery = (TextView) findViewById(R.id.nosLikesQuery);
                 String temp = text_groupvideo_nosLikesQuery.getText().toString();
                 System.out.println("xxx: " + temp);
@@ -172,6 +172,20 @@ public class GroupVideoActivity extends AppCompatActivity {
         });
 
         // populateAshaList
+        try {
+            final JSONObject jsonObject = new JSONObject();
+            //primary key: <broadcaster, show_name>
+            jsonObject.put("objective", "get_active_participants");
+            jsonObject.put("broadcaster", senderPhoneNum);
+            jsonObject.put("show_name", showName);
+            jsonObject.put("timestamp", DateFormat.getDateTimeInstance().format(new Date()));
+            AMQPPublish.queue.putLast(jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         String[] temp1 = ashalist.replace("[","").replace("]","").replace("\"","").replace("\"","").split(",");
         ashaListNames = new ArrayList<>(Arrays.asList(temp1));
         ashaListQuery = new ArrayList<>(Collections.nCopies(temp1.length, 0));
@@ -366,22 +380,57 @@ public class GroupVideoActivity extends AppCompatActivity {
                                         text_groupvideo_nosLikesQuery.setText("Likes: " + likes + ", Queries:" + (queries+1) + "/" + total);
                                     }
                                 });
-
                             }
                             // asha query
                             else if (message.getString("objective").equals("asha_query")) {
-                                ashaListQuery.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.query);
-                                populateAshaList(ashaListNames);
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        try {
+                                            ashaListQuery.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.query);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        populateAshaList(ashaListNames);
+                                    }
+                                });
                             }
                             // asha active
                             else if (message.getString("objective").equals("asha_active")) {
-                                if (message.getString("task").equals("make_active")) {
-                                    ashaListActive.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.green);
-                                }
-                                if (message.getString("task").equals("make_inactive")) {
-                                    ashaListActive.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.red);
-                                }
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        try {
+                                            if (message.getString("task").equals("make_active")) {
+                                                ashaListActive.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.green);
+                                            }
+                                            if (message.getString("task").equals("make_inactive")) {
+                                                ashaListActive.set(ashaListNames.indexOf(message.getString("asha")), R.drawable.red);
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        populateAshaList(ashaListNames);
+                                    }
+                                });
                             }
+
+                            else if (message.getString("objective").equals("ack_get_active_participants")) {
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        try {
+                                            String[] temp = message.getString("participants").replace("[","").replace("]","").replace("\"","").replace("\"","").split(",");
+                                            for (String x: temp) {
+                                                ashaListActive.set(ashaListNames.indexOf(message.getString(x)), R.drawable.green);
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        populateAshaList(ashaListNames);
+                                    }
+                                });
+                            }
+
+
+
                         }
                     } catch (InterruptedException e) {
                         break;

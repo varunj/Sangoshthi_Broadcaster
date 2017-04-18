@@ -2,7 +2,7 @@
     <string name="app_name">xSangoshthi_Broadcaster</string>
 
     <string name="register_minLen_name">1</string>
-    <string name="register_len_phoneNum">10</string>
+    <string name="register_len_phoneNum">12</string>
 
     <string name="toast_wrong_name">Enter Name</string>
     <string name="toast_wrong_phoneNum">Enter Your 10 Digit Phone Number</string>

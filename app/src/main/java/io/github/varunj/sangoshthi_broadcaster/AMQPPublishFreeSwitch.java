@@ -18,7 +18,7 @@ public class AMQPPublishFreeSwitch {
 
     public static Thread publishThreadFreeSwitch;
     public static JSONObject messagePresent;
-    public static String QUEUE_NAME = "freeswitch_broadcaster_to_server";
+    public static String QUEUE_NAME = "broadcaster_to_server";
     public static BlockingDeque<JSONObject> queue = new LinkedBlockingDeque<>();
 
     public static  ConnectionFactory factory = new ConnectionFactory();
